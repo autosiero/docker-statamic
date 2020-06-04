@@ -1,0 +1,50 @@
+version: '3.7'
+
+networks:
+  statamic:
+
+# Laravel foundation config
+x-laravel: &laravel-base
+  env_file:
+    - .env.example
+    - .env
+    - .docker/php/docker.env
+  volumes:
+    - ./:/var/www/statamic
+  depends_on:
+    - mail
+  networks:
+    - statamic
+
+
+services:
+  # Application and webserver
+  php:
+    << : *laravel-base
+    image: docker.pkg.github.com/autosiero/docker-statamic/laravel-apache
+    build:
+      context: .docker/php
+      target: laravel
+    ports:
+      - 127.0.0.1:8080:80
+      - 127.0.0.1:8081:9000
+
+  # Horizon
+  horizon:
+    << : *laravel-base
+    image: docker.pkg.github.com/autosiero/docker-statamic/laravel-horizon
+    build:
+      context: .docker/php
+      target: horizon
+
+  # Mailhog (to test e-mail)
+  mail:
+    image: mailhog/mailhog:latest
+    networks:
+      - statamic
+
+  # Redis (cache)
+  redis:
+    image: redis
+    networks:
+      - statamic

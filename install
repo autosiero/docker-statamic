@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Get dirs
+REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+ROOT_DIR="$( realpath "${1:-$REPO_DIR/../}" )"
+
+# Assert files
+REPO_COMPOSE="$REPO_DIR/docker-compose.yml"
+ROOT_COMPOSE="$ROOT_DIR/docker-compose.yml"
+REPO_OVERRIDE="$REPO_DIR/docker-compose.override.yml"
+ROOT_OVERRIDE="$ROOT_DIR/docker-compose.override.yml"
+
+# Validate source dir
+if [ ! -d "$ROOT_DIR" ]; then
+    echo "Root dir [$ROOT_DIR] not found or not a dir"
+    exit 1
+fi
+
+# Install compose file
+if [ ! -f "$ROOT_COMPOSE" ]; then
+    echo "Installing docker-compose.yml in parent dir"
+    ln -vsr "$REPO_COMPOSE" "$ROOT_COMPOSE"
+fi
+
+# Check before wreck
+if [ "$( realpath "$ROOT_COMPOSE" )" != "$REPO_COMPOSE" ]; then
+    echo "Root config is not this config, aborting to prevent damage"
+    exit 255
+fi
+
+# Install override for ports
+if [ ! -f "$ROOT_OVERRIDE" ]; then
+    echo "Installing Docker override file"
+    cp "$REPO_OVERRIDE" "$ROOT_OVERRIDE"
+fi
+
+# Pre-pull images
+echo "Pulling images"
+docker-compose --project-directory "$ROOT_DIR" pull
+
+# Done :)
+echo "Done :)"
