@@ -4,6 +4,7 @@ networks:
   statamic:
 
 volumes:
+    mongo-data:
     mysql-data:
 
 # Laravel foundation config
@@ -71,6 +72,30 @@ services:
       PMA_PASSWORD: phpmyadmin
     depends_on:
       - mysql
+
+  # Mongo DB
+  mongodb:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoroot
+      MONGO_INITDB_ROOT_PASSWORD: mongoroot
+    volumes:
+      - ./.docker/mongodb:/docker-entrypoint-initdb.d
+      - mongo-data:/data/db
+    networks:
+      - statamic
+
+  # Mongo monitor
+  mongo-express:
+    image: mongo-express
+    networks:
+      - statamic
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_ADMINUSERNAME: mongoroot
+      ME_CONFIG_MONGODB_ADMINPASSWORD: mongoroot
+      ME_CONFIG_MONGODB_AUTH_DATABASE: admin
+      ME_CONFIG_SITE_BASEURL: /mongo-express/
 
   # Mailhog (to test e-mail)
   mail:

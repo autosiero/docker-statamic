@@ -22,6 +22,11 @@ RUN pecl install xdebug imagick redis \
     && docker-php-ext-enable xdebug imagick redis \
     && rm -rf /tmp/pear
 
+# Install MongoDB
+RUN pecl install mongodb \
+    && docker-php-ext-enable mongodb \
+    && rm -rf /tmp/pear
+
 # Use production PHP
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -39,10 +44,11 @@ RUN a2enmod \
     rewrite
 
 # Enable some configs
-COPY ./statamic.conf ./mailhog.conf ./phpmyadmin.conf /etc/apache2/conf-available/
+COPY ./statamic.conf ./mailhog.conf ./phpmyadmin.conf ./mongo-express.conf /etc/apache2/conf-available/
 RUN a2enconf \
     statamic \
     phpmyadmin \
+    mongo-express \
     mailhog
 
 RUN groupadd --gid 1000 statamic && \
