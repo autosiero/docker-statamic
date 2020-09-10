@@ -10,6 +10,10 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/cache/apt /var/lib/apt /var/log/*
 
+# Install MySQL driver for PDO
+RUN docker-php-ext-install pdo_mysql \
+    && docker-php-source delete
+
 # Install XDebug, imagick and native Redis extension
 RUN pecl install xdebug imagick redis \
     && docker-php-ext-enable xdebug imagick redis \
@@ -32,9 +36,10 @@ RUN a2enmod \
     rewrite
 
 # Enable some configs
-COPY ./statamic.conf ./mailhog.conf /etc/apache2/conf-available/
+COPY ./statamic.conf ./mailhog.conf ./phpmyadmin.conf /etc/apache2/conf-available/
 RUN a2enconf \
     statamic \
+    phpmyadmin \
     mailhog
 
 RUN groupadd --gid 1000 statamic && \

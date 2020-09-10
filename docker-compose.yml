@@ -3,6 +3,9 @@ version: '3.7'
 networks:
   statamic:
 
+volumes:
+    mysql-data:
+
 # Laravel foundation config
 x-laravel: &laravel-base
   env_file:
@@ -36,6 +39,38 @@ services:
     build:
       context: .docker/php
       target: horizon
+
+  # MySQL database
+  mysql:
+    image: docker.pkg.github.com/autosiero/docker-statamic/mysql
+    build:
+      context: .docker/mysql
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: laravel
+      MYSQL_ONETIME_PASSWORD: 'true'
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    ports:
+      - 3306:3306
+    networks:
+      - statamic
+
+  # PhpMyAdmin
+  pma:
+    image: docker.pkg.github.com/autosiero/docker-statamic/phpmyadmin
+    build:
+      context: .docker/phpmyadmin
+    networks:
+      - statamic
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: phpmyadmin
+      PMA_PASSWORD: phpmyadmin
+    depends_on:
+      - mysql
 
   # Mailhog (to test e-mail)
   mail:
