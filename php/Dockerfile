@@ -11,7 +11,7 @@ RUN apt-get update \
     && rm -rf /var/cache/apt /var/lib/apt /var/log/*
 
 # Install XDebug, imagick and native Redis extension
-RUN pecl install xdebug imagick redis\
+RUN pecl install xdebug imagick redis \
     && docker-php-ext-enable xdebug imagick redis \
     && rm -rf /tmp/pear
 
