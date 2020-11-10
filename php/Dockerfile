@@ -6,12 +6,15 @@ FROM php:apache as laravel
 
 # Install ImageMagick
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y libmagickwand-dev \
+    && apt-get install --no-install-recommends -y libmagickwand-dev libzip-dev \
     && apt-get clean \
     && rm -rf /var/cache/apt /var/lib/apt /var/log/*
 
-# Install MySQL driver for PDO
-RUN docker-php-ext-install pdo_mysql \
+# Install MySQL driver for PDO, Exif and Zip
+RUN docker-php-ext-install \
+        pdo_mysql \
+        exif \
+        zip \
     && docker-php-source delete
 
 # Install XDebug, imagick and native Redis extension
