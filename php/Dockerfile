@@ -6,7 +6,7 @@ FROM php:apache as laravel
 
 # Install ImageMagick
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y libmagickwand-dev libzip-dev \
+    && apt-get install --no-install-recommends -y libmagickwand-dev libzip-dev libssl-dev \
     && apt-get clean \
     && rm -rf /var/cache/apt /var/lib/apt /var/log/*
 
@@ -23,7 +23,7 @@ RUN pecl install xdebug imagick redis \
     && rm -rf /tmp/pear
 
 # Install MongoDB
-RUN pecl install mongodb \
+RUN pecl install mongodb --with-mongodb-ssl=openssl \
     && docker-php-ext-enable mongodb \
     && rm -rf /tmp/pear
 
