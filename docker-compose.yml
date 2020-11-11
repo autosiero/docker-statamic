@@ -10,7 +10,6 @@ volumes:
 # Laravel foundation config
 x-laravel: &laravel-base
   env_file:
-    - .env.example
     - .env
     - .docker/php/docker.env
   volumes:
